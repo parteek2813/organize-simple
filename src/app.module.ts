@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import dotenv from 'dotenv/config';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -15,6 +15,7 @@ import dotenv from 'dotenv/config';
         limit: 20,
       },
     ]),
+    
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.POSTGRES_HOST,
@@ -25,6 +26,7 @@ import dotenv from 'dotenv/config';
       autoLoadEntities: true,
       synchronize: process.env.NODE_ENV !== 'production',
     }),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
