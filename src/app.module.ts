@@ -15,7 +15,6 @@ import { AuthModule } from './auth/auth.module';
         limit: 20,
       },
     ]),
-    
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.POSTGRES_HOST,
