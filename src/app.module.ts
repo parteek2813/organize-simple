@@ -1,3 +1,4 @@
+import '../utils/env';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -5,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { ParsersModule } from './parsers/parsers.module';
 
 @Module({
   imports: [
@@ -26,6 +28,7 @@ import { AuthModule } from './auth/auth.module';
       synchronize: process.env.NODE_ENV !== 'production',
     }),
     AuthModule,
+    ParsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

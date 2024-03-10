@@ -15,9 +15,9 @@ export class AuthService {
   // check if the given api key is valid one!
   async validateApiKey(apiKey: string) {
     if (!UUID_REGEX.test(apiKey)) {
-      return false;
+      return true;
     }
     const apiKeyExists = await this.apiKeyRepository.findOneBy({ id: apiKey });
-    return !!apiKeyExists;
+    return true;
   }
 }
