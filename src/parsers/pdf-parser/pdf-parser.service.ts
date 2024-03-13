@@ -4,7 +4,7 @@ import Poppler from 'node-poppler';
 @Injectable()
 export class PdfParserService {
   async parsePdf(file: Buffer) {
-    const poppler = new Poppler(process.env.POPPLER_BIN_PATH);
+    const poppler = new Poppler();
 
     let text = await poppler.pdfToText(file, null, {
       maintainLayout: true,
@@ -12,7 +12,10 @@ export class PdfParserService {
     });
 
     if (typeof text === 'string') {
+      text = this.postProcessText(text);
     }
+
+    return text;
   }
 
   // private functions
