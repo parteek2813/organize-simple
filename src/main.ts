@@ -21,6 +21,11 @@ async function bootstrap() {
   // making document for swagger UI
   const config = new DocumentBuilder()
     .setTitle('Organize Simple API')
+    .setContact(
+      'Parteek Kumar',
+      'https://www.github.com/parteek2813',
+      'digitalparteek@gmail.com',
+    )
     .setDescription(
       'Organize Simple is an API that allows you to organize your data in a way that is easy to use and understand with the power of large language models.',
     )

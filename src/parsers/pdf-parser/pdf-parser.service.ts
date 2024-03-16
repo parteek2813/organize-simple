@@ -1,7 +1,14 @@
 import { HttpService } from '@nestjs/axios';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AxiosResponse } from 'axios';
 import Poppler from 'node-poppler';
+import {
+  PdfExtensionError,
+  PdfMagicNumberError,
+  PdfNotParsedError,
+  PdfSizeError,
+} from './exceptions/exceptions';
 
 @Injectable()
 export class PdfParserService {
@@ -14,16 +21,16 @@ export class PdfParserService {
   async parsePdf(file: Buffer) {
     const poppler = new Poppler();
 
-    let text = await poppler.pdfToText(file, null, {
+    const output = (await poppler.pdfToText(file, null, {
       maintainLayout: true,
       quiet: true,
-    });
+    })) as any;
 
-    if (typeof text === 'string') {
-      text = this.postProcessText(text);
+    if (output instanceof Error || output.length === 0) {
+      throw new PdfNotParsedError();
     }
 
-    return text;
+    return this.postProcessText(output);
   }
 
   // private functions
@@ -60,26 +67,39 @@ export class PdfParserService {
   }
 
   async loadPdfFromUrl(url: string) {
+    // get the extension
+    const extension = url.split('.').pop();
+
+    // check if the extension is not a pdf
+    if (extension !== 'pdf') {
+      throw new PdfExtensionError();
+    }
+
     const response = await this.httpService.axiosRef({
       url,
       method: 'GET',
       responseType: 'arraybuffer',
     });
 
-    // check the headers once
-    if (!response.headers['content-type'].includes('application/pdf')) {
-      throw new BadRequestException('The provided URL is not a PDF');
-    }
+    this.checkResponse(response);
 
+    return Buffer.from(response.data, 'binary');
+  }
+
+  private checkResponse(response: AxiosResponse) {
     // If file is larger
     // TODO - Check for response.header format type
     if (
       parseInt(response.headers['Content-Length'] as string, 10) >
       5 * 1024 * 1024
     ) {
-      throw new BadRequestException('The PDF file is larger than expected.');
+      throw new PdfSizeError();
     }
 
-    return Buffer.from(response.data, 'binary');
+    const pdfMagicNumber = Buffer.from([0x25, 0x50, 0x44, 0x46]);
+    const bufferStart = response.data.subarray(0, 4);
+    if (!bufferStart.equals(pdfMagicNumber)) {
+      throw new PdfMagicNumberError();
+    }
   }
 }
