@@ -55,7 +55,7 @@ describe('AuthService', () => {
     });
 
     // VALID CASE, return true if apiKey exists
-    it('Should return true if the apiKey does exist', async () => {
+    it('Should return true if the apiKey does exists', async () => {
       apiKeyRepositoryMock.findOneBy = jest.fn().mockResolvedValue(apiKeyMock);
 
       const result = await authService.validateApiKey(apiKeyMock.id);
